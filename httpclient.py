@@ -45,7 +45,7 @@ class HTTPClient(object):
 
     def get_code(self, data):
         request_line = data.split("\r\n")[0]
-        self.code = request_line.split(" ")[1]
+        self.code = int(request_line.split(" ")[1])
 
         return self.code
 
@@ -75,6 +75,12 @@ class HTTPClient(object):
                 port = 443
 
         return port
+
+    def get_payload(self, data):
+        return urllib.parse.urlencode(data)
+
+    def get_payload_length(self, data):
+        return len(data)
 
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
@@ -110,21 +116,45 @@ class HTTPClient(object):
         reqeust_data.append("\r\n")
 
         reqeust_header = "\r\n".join(reqeust_data)
-        print(reqeust_header)
         self.sendall(reqeust_header)
 
         response_data = self.recvall(self.socket)
         code = self.get_code(response_data)
         body = self.get_body(response_data)
-        print(body)
 
         self.close()
-
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
-        code = 500
-        body = ""
+        url_obj = urllib.parse.urlparse(url)
+        path = self.get_path(url_obj)
+        port = self.get_port(url_obj)
+        host = url_obj.netloc.split(":")[0]
+        self.connect(host, port)
+
+        payload_body, content_length = None, 100
+        if args:
+            payload_body = self.get_payload(args)
+            content_length = self.get_payload_length(payload_body)
+
+        request_data = []
+        request_data.append("POST {} HTTP/1.1".format(path))
+        request_data.append("Host: {}".format(host))
+        request_data.append("Content-Type: application/x-www-form-urlencoded")
+        request_data.append("Content-Length: {}".format(content_length))
+        request_data.append("Connection: close")
+        request_data.append("\r\n")
+
+        request_header = "\r\n".join(request_data)
+        if payload_body:
+            request_header += payload_body
+        self.sendall(request_header)
+        print(request_header)
+        response_data = self.recvall(self.socket)
+        code = self.get_code(response_data)
+        body = self.get_body(response_data)
+
+        self.close()
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
