@@ -149,11 +149,10 @@ class HTTPClient(object):
         if payload_body:
             request_header += payload_body
         self.sendall(request_header)
-        print(request_header)
         response_data = self.recvall(self.socket)
         code = self.get_code(response_data)
         body = self.get_body(response_data)
-
+        print(body)
         self.close()
         return HTTPResponse(code, body)
 

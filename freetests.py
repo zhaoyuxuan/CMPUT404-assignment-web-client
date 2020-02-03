@@ -27,7 +27,7 @@ import urllib.parse
 import json
 
 BASEHOST = '127.0.0.1'
-BASEPORT = 27600 + random.randint(1,100)
+BASEPORT = 27600 + random.randint(1, 100)
 
 
 httpclass = httpclient
@@ -62,11 +62,13 @@ class MyHTTPHandler(http.server.BaseHTTPRequestHandler):
 def make_http_server(host = BASEHOST, port = BASEPORT):
     return http.server.HTTPServer( (host, port) , MyHTTPHandler)
 
+
 # always returns 404
 def nothing_available(self):
     self.send_error(404, "File not found")
     self.end_headers()
     self.wfile.write(bytes("","utf-8"))
+
 
 # repeats your path back
 def echo_path_get(self):
@@ -74,6 +76,7 @@ def echo_path_get(self):
     self.send_header("Content-type", "text/plain")
     self.end_headers()
     self.wfile.write(bytes("%s\n" % self.path,"utf-8"))
+
 
 # repeats your post back as json
 def echo_post(self):
@@ -83,6 +86,7 @@ def echo_post(self):
     self.send_header("Content-type", "application/json")
     self.end_headers()
     self.wfile.write(bytes(json.dumps(post_data),"utf-8"))
+
 
 def header_check(self):
     response = 200
@@ -94,6 +98,7 @@ def header_check(self):
     self.send_header("Content-type", "application/json")
     self.end_headers()
     self.wfile.write(bytes(json.dumps(errors),"utf-8"))
+
 
 def die_on_method(self):
     response = 405
