@@ -44,7 +44,9 @@ class HTTPClient(object):
         return None
 
     def get_code(self, data):
+        print(data)
         request_line = data.split("\r\n")[0]
+        print(request_line)
         self.code = int(request_line.split(" ")[1])
 
         return self.code
@@ -71,8 +73,6 @@ class HTTPClient(object):
         elif url_obj.scheme:
             if url_obj.scheme == 'http':
                 port = 80
-            elif url_obj.scheme == 'https':
-                port = 443
 
         return port
 
@@ -80,7 +80,7 @@ class HTTPClient(object):
         return urllib.parse.urlencode(data)
 
     def get_payload_length(self, data):
-        return len(data)
+        return len(data.encode('utf-8'))
 
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
@@ -117,11 +117,11 @@ class HTTPClient(object):
 
         reqeust_header = "\r\n".join(reqeust_data)
         self.sendall(reqeust_header)
-
+        print(reqeust_header)
         response_data = self.recvall(self.socket)
         code = self.get_code(response_data)
         body = self.get_body(response_data)
-
+        print(response_data)
         self.close()
         return HTTPResponse(code, body)
 

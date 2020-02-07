@@ -77,7 +77,6 @@ def echo_path_get(self):
     self.end_headers()
     self.wfile.write(bytes("%s\n" % self.path,"utf-8"))
 
-
 # repeats your post back as json
 def echo_post(self):
     length = int(self.headers['Content-Length'])
@@ -86,7 +85,6 @@ def echo_post(self):
     self.send_header("Content-type", "application/json")
     self.end_headers()
     self.wfile.write(bytes(json.dumps(post_data),"utf-8"))
-
 
 def header_check(self):
     response = 200
